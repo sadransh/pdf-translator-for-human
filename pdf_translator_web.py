@@ -232,8 +232,20 @@ def main():
     with st.sidebar:
         st.header("Settings")
         
+        # Store previous file name to detect changes
+        previous_file = st.session_state.get('previous_file', None)
         uploaded_file = st.file_uploader("Choose a PDF file", type="pdf")
         
+        # Reset session state when a new file is uploaded
+        if uploaded_file is not None and (previous_file is None or uploaded_file.name != previous_file):
+            # Reset all relevant session state variables
+            st.session_state.current_page = 0
+            st.session_state.translation_started = True
+            st.session_state.all_translated = False
+            st.session_state.translated_doc = None
+            st.session_state.previous_file = uploaded_file.name
+            st.rerun()
+            
         # Add source language selection
         source_lang_name = st.selectbox(
             "Source Language",
