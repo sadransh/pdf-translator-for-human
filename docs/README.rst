@@ -595,12 +595,13 @@ ChatGpt Translator
     You can provide your api key, api base as an argument or you can export it as an env var
     e.g. 
     `export OPENAI_API_KEY="your_key"`
+
     `export OPENAI_API_BASE=https://api.openai.com/v1`
 
 .. code-block:: python
 
     text = 'happy coding'
-    translated = ChatGptTranslator(api_key='your_key', target='german').translate(text=text)
+    translated = ChatGptTranslator(api_key='your_key', base_url='https://api.xxx.com/v1', target='german').translate(text=text)
 
 - Translate batch of texts
 
