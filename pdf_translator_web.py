@@ -224,21 +224,37 @@ def translate_all_pages(
     
     return output_doc
 
+def init_session_state():
+    """Initialize session state variables"""
+    if 'current_page' not in st.session_state:
+        st.session_state.current_page = 0
+    if 'translation_started' not in st.session_state:
+        st.session_state.translation_started = True
+    if 'all_translated' not in st.session_state:
+        st.session_state.all_translated = False
+    if 'translated_doc' not in st.session_state:
+        st.session_state.translated_doc = None
+    if 'previous_file' not in st.session_state:
+        st.session_state.previous_file = None
+    if 'api_settings' not in st.session_state:
+        st.session_state.api_settings = {}
+
 def main():
     st.set_page_config(layout="wide", page_title="PDF Translator for Human: with Local-LLM/GPT")
     st.title("PDF Translator for Human: with Local-LLM/GPT")
+
+    # Initialize session state
+    init_session_state()
 
     # Sidebar configuration
     with st.sidebar:
         st.header("Settings")
         
-        # Store previous file name to detect changes
-        previous_file = st.session_state.get('previous_file', None)
         uploaded_file = st.file_uploader("Choose a PDF file", type="pdf")
         
         # Reset session state when a new file is uploaded
-        if uploaded_file is not None and (previous_file is None or uploaded_file.name != previous_file):
-            # Reset all relevant session state variables
+        if uploaded_file is not None and (st.session_state.previous_file is None or 
+                                        uploaded_file.name != st.session_state.previous_file):
             st.session_state.current_page = 0
             st.session_state.translation_started = True
             st.session_state.all_translated = False
@@ -306,8 +322,6 @@ def main():
             )
             
             # Store API settings in session state
-            if 'api_settings' not in st.session_state:
-                st.session_state.api_settings = {}
             st.session_state.api_settings.update({
                 'api_key': api_key,
                 'api_base': api_base,
@@ -331,17 +345,6 @@ def main():
         
         # Create two columns for side-by-side display
         col1, col2 = st.columns(2)
-        
-        # Initialize session state
-        if 'current_page' not in st.session_state:
-            st.session_state.current_page = 0
-            st.session_state.translation_started = True  # 自动开始翻译
-        
-        # Initialize translation status
-        if 'all_translated' not in st.session_state:
-            st.session_state.all_translated = False
-        if 'translated_doc' not in st.session_state:
-            st.session_state.translated_doc = None
         
         # Display original pages immediately
         with col1:
