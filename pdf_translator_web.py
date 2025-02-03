@@ -17,8 +17,8 @@ DEFAULT_API_BASE = "http://localhost:8080/v1"
 
 # Supported translators
 TRANSLATORS = {
-    'OpenAI': OpenAICompatibleTranslator,
     'OpenAI Compatible': OpenAICompatibleTranslator,
+    'OpenAI': OpenAICompatibleTranslator,
     'google': GoogleTranslator,
 }
 
@@ -270,14 +270,14 @@ def main():
                 index=0
             )
             
-            # Only show API key input if not set in environment
-            if not os.getenv("OPENAI_API_KEY"):
+            # Get API key from environment or user input
+            api_key = os.getenv("OPENAI_API_KEY", "")
+            if not api_key:
                 api_key = st.text_input(
                     "API Key",
-                    value="",
+                    value="sk-xxx",
                     type="password"
                 )
-                os.environ["OPENAI_API_KEY"] = api_key
             
             # Different default API base for OpenAI and OpenAI Compatible
             default_base = "https://api.openai.com/v1" if translator_name == 'OpenAI' else DEFAULT_API_BASE
@@ -293,9 +293,15 @@ def main():
                 value=os.getenv("OPENAI_MODEL", default_model)
             )
             
-            # Update environment variables
-            os.environ["OPENAI_API_BASE"] = api_base
-            os.environ["OPENAI_MODEL"] = model
+            # Store API settings in session state
+            if 'api_settings' not in st.session_state:
+                st.session_state.api_settings = {}
+            st.session_state.api_settings.update({
+                'api_key': api_key,
+                'api_base': api_base,
+                'model': model
+            })
+            
             target_lang = LANGUAGE_OPTIONS[target_lang]
         else:
             # For Google Translator, show target language selection
@@ -338,9 +344,15 @@ def main():
         with col2:
             st.header("Translated")
             
-            # Configure translator with selected source language
+            # Configure translator with selected source language and API settings
             TranslatorClass = TRANSLATORS[translator_name]
-            translator = TranslatorClass(source=source_lang, target=target_lang)
+            translator = TranslatorClass(
+                source=source_lang,
+                target=target_lang,
+                api_key=st.session_state.api_settings.get('api_key'),
+                base_url=st.session_state.api_settings.get('api_base'),
+                model=st.session_state.api_settings.get('model')
+            )
             
             # Translate current batch of pages
             translated_pages = translate_pdf_pages(
@@ -392,7 +404,13 @@ def main():
                         use_container_width=True):
                 # Configure translator
                 TranslatorClass = TRANSLATORS[translator_name]
-                translator = TranslatorClass(source=source_lang, target=target_lang)
+                translator = TranslatorClass(
+                    source=source_lang,
+                    target=target_lang,
+                    api_key=st.session_state.api_settings.get('api_key'),
+                    base_url=st.session_state.api_settings.get('api_base'),
+                    model=st.session_state.api_settings.get('model')
+                )
                 
                 # Translate all pages
                 output_doc = pymupdf.open()

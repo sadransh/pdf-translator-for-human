@@ -23,8 +23,7 @@ class OpenAICompatibleTranslator(ChatGptTranslator):
 
         for attempt in range(self.retry_count):
             try:
-                api_base = os.environ["OPENAI_API_BASE"]
-                logging.info(f"Request OpenAI compatible api, base_url: {api_base}")
+                logging.info(f"Request OpenAI compatible api, base_url: {self.base_url}")
                 return super().translate(text, **kwargs)
             except json.JSONDecodeError:
                 logging.warn(f"Translation API response JSONDecodeError, will retry later...")
