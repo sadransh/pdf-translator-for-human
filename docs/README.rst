@@ -184,7 +184,7 @@ or even directly from terminal:
 
     or shorter
 
-    $ dt -tg de -txt "hello world"
+    $ dt --translator chatgpt -tg de -txt "hello world"
 
 
 =====
@@ -594,7 +594,7 @@ ChatGpt Translator
 
     You can provide your api key, api base as an argument or you can export it as an env var
     e.g. 
-    
+
     `export OPENAI_API_KEY="your_key"`
 
     `export OPENAI_API_BASE=https://api.openai.com/v1`

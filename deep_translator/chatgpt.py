@@ -58,8 +58,10 @@ class ChatGptTranslator(BaseTranslator):
         prompt = f"Translate the text below into {self.target}.\n"
         prompt += f'Text: "{text}"'
 
+        # if model is empty (for mlx_lm.server, the model should be default_model)
+        # export OPENAI_MODEL=default_model
         response = client.chat.completions.create(
-            model=self.model,
+            model=self.model if self.model else "default_model",
             messages=[
                 {
                     "role": "user",
@@ -67,6 +69,7 @@ class ChatGptTranslator(BaseTranslator):
                 }
             ],
         )
+        
 
         return response.choices[0].message.content
 
