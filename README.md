@@ -73,6 +73,25 @@ cmake --build build --config Release -j 12
 
 ```
 
+## Note on using OpenAI Compatible LLM service provider
+
+For example, run the following command before start the streamlit application to enable translation by deepseek :
+
+``` bash
+export OPENAI_MODEL=deepseek-chat
+export OPENAI_API_BASE=https://api.deepseek.com/v1
+export OPENAI_API_KEY=sk-xxxx
+```
+
+Run the following command before start the streamlit application to enable translation by moonshot :
+
+``` bash
+export OPENAI_MODEL=moonshot-v1-8k
+export OPENAI_API_BASE=https://api.moonshot.cn/v1
+export OPENAI_API_KEY=sk-xxxx
+```
+
+
 ### Options 3. Local inference service by ollama/vLLM and other application such as LMStudio
 
 Please read the official guide for you LLM inferencing tool.

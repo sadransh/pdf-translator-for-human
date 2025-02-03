@@ -23,6 +23,8 @@ var/
 .idea/
 .idea
 .cached
+*.pdf
+*.log
 wheels/
 *.egg-info/
 .installed.cfg
