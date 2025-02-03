@@ -4,8 +4,8 @@
 
 There is tons of PDF reader/translator with AI supported. However none of them meets my need. I hope it could run totally on local with local LLMs.
 
-I hope I could read both the original PDF and the translated pages side by side. 
-Also I don't like to translate a 1000 pages long PDF file all at one.
+I hope to read both the original PDF and the translated pages side by side. 
+Also I don't like to translate a 1000 pages long PDF file all at once, it costs lots of time and tokens. And most of the time, I never complete reading through all contents of a long paper.
 
 ## Features in PDF Translator for Human
 You can read both the original PDF file and the translated content side by side.
@@ -16,7 +16,7 @@ The local/remote translation API is invoked on a per-page basis as needed, trigg
 
 ![PDF Translator for Human](PDF-Translator-for-Human.jpg)
 
-## Supported translators and LLMS:
+## Supported translators and LLMs:
 * Google Translator (NO need api-key, it it totally free)
 * Local deployed LLMs (ollama, llama.cpp, mlx_lm ... etc.)
 * ChatGPT
@@ -36,7 +36,7 @@ streamlit run pdf_translator_web.py
 
 ```
 
-## Notes on deploy and start local llm 
+## Notes on deployment and starting a local llm inference service
 
 ### Option 1.Start local llm By mlx_lm (works on Mac Sillicon.)
 
@@ -73,7 +73,11 @@ cmake --build build --config Release -j 12
 
 ```
 
-## Note on using OpenAI Compatible LLM service provider
+### Options 3. Local inference service by ollama/vLLM and other application such as LMStudio
+
+Please read the official guide for you LLM inferencing tool.
+
+### Option 4. Note on using OpenAI Compatible LLM service provider
 
 For example, run the following command before start the streamlit application to enable translation by deepseek :
 
@@ -92,12 +96,11 @@ export OPENAI_API_KEY=sk-xxxx
 ```
 
 
-### Options 3. Local inference service by ollama/vLLM and other application such as LMStudio
-
-Please read the official guide for you LLM inferencing tool.
 
 ## Acknowlegement
 
 https://github.com/nidhaloff/deep-translator
 
-The project is based on the awesome deep-translator.
+The project is based on the awesome deep-translator. Thanks to the excellent work in the original project, I can integrate it to the pdf translator tool.
+
+Pull Requests are welcome.
