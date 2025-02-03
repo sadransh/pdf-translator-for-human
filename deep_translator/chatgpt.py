@@ -4,7 +4,11 @@ import os
 from typing import List, Optional
 
 from deep_translator.base import BaseTranslator
-from deep_translator.constants import OPEN_AI_ENV_VAR
+from deep_translator.constants import (
+    OPEN_AI_ENV_VAR,
+    OPEN_AI_BASE_URL_ENV_VAR,
+    OPEN_AI_MODEL_ENV_VAR,
+)
 from deep_translator.exceptions import ApiKeyException
 
 
@@ -19,19 +23,23 @@ class ChatGptTranslator(BaseTranslator):
         source: str = "auto",
         target: str = "english",
         api_key: Optional[str] = os.getenv(OPEN_AI_ENV_VAR, None),
-        model: Optional[str] = "gpt-3.5-turbo",
+        model: Optional[str] = os.getenv(OPEN_AI_MODEL_ENV_VAR, "gpt-4o-mini"),
+        base_url: Optional[str] = os.getenv(OPEN_AI_BASE_URL_ENV_VAR, None),
         **kwargs,
     ):
         """
         @param api_key: your openai api key.
         @param source: source language
         @param target: target language
+        @param model: OpenAI model to use
+        @param base_url: custom OpenAI API base URL
         """
         if not api_key:
             raise ApiKeyException(env_var=OPEN_AI_ENV_VAR)
 
         self.api_key = api_key
         self.model = model
+        self.base_url = base_url
 
         super().__init__(source=source, target=target, **kwargs)
 
@@ -42,12 +50,15 @@ class ChatGptTranslator(BaseTranslator):
         """
         import openai
 
-        openai.api_key = self.api_key
+        client = openai.OpenAI(
+            api_key=self.api_key,
+            base_url=self.base_url if self.base_url else None
+        )
 
         prompt = f"Translate the text below into {self.target}.\n"
         prompt += f'Text: "{text}"'
 
-        response = openai.ChatCompletion.create(
+        response = client.chat.completions.create(
             model=self.model,
             messages=[
                 {

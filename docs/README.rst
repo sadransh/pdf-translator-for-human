@@ -592,8 +592,11 @@ ChatGpt Translator
     There are two required attributes, namely "api_key" (string) and "target" (string or list).
     Attribute "source" is optional.
 
-    You can provide your api key as an argument or you can export it as an env var
-    e.g. `export OPENAI_API_KEY="your_key"`
+    You can provide your api key, api base as an argument or you can export it as an env var
+    e.g. 
+    `export OPENAI_API_KEY="your_key"
+     export OPENAI_API_BASE=https://api.openai.com/v1
+    `
 
 .. code-block:: python
 
@@ -824,13 +827,15 @@ To translate a string or line of text:
 
 .. code-block:: console
 
-    $ deep_translator google --source "english" --target "german" --text "happy coding"
+    $ deep_translator --translator google --source "english" --target "german" --text "happy coding"
+    $ 
 
 Alternate short option names, along with using language abbreviations:
 
 .. code-block:: console
 
-    $ deep_translator google -src "en" -tgt "de" -txt "happy coding"
+    $ dt -trans google -src "en" -tg "de" -txt "happy coding"
+    $ dt -trans chatgpt -src "en" -tg "ja" -txt "happy coding"
 
 
 Finally, to retrieve a list of available languages for a given translator:
