@@ -12,6 +12,9 @@ You can read both the original PDF file and the translated content side by side.
 
 The local/remote translation API is invoked on a per-page basis as needed, triggered by page turns during reading.
 
+## Snapshot
+
+![PDF Translator for Human](PDF-Translator-for-Human.jpg)
 
 ## Supported translators and LLMS:
 * Google Translator (NO need api-key, it it totally free)
@@ -69,9 +72,6 @@ cmake --build build --config Release -j 12
 
 ```
 
-## Snapshot
-
-![PDF Translator for Human](PDF-Translator-for-Human.jpg)
 
 
 ## Acknowlegement
