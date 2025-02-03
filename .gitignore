@@ -22,6 +22,7 @@ sdist/
 var/
 .idea/
 .idea
+.cached
 wheels/
 *.egg-info/
 .installed.cfg

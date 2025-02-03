@@ -118,8 +118,10 @@ def main():
     export OPENAI_API_KEY=sk-proj-xxxx
     export OPENAI_API_BASE=https://api.xxxx.com/v1
     export OPENAI_API_BASE=http://localhost:8080/v1 #  for local llm api
-    python translator_cli.py --source english --translator chatgpt --target zh-CN input.pdf
+    export OPENAI_MODEL=default_model
     
+    python translator_cli.py --source english --translator chatgpt --target zh-CN input.pdf
+
     # do not keep original text as an optional layer:
     python translator_cli.py --source english --translator chatgpt --target zh-CN --no-original input.pdf
     
