@@ -18,10 +18,11 @@ The local/remote translation API is invoked on a per-page basis as needed, trigg
 
 ## Supported translators and LLMS:
 * Google Translator (NO need api-key, it it totally free)
+* Local deployed LLMs (ollama, llama.cpp, mlx_lm ... etc.)
 * ChatGPT
 * DeepSeek (Use the OpenAI Compatible endpoint at https://api.deepseek.com/v1)
 * Qwen (Use the OpenAI Compatible endpoint)
-* Local deployed LLMs by ollama, llama.cpp, mlx_lm
+
 * Other OpenAI Compatible LLMs like GLM/Moonshot etc.
 
 ## Start the Web Application for PDF Translator for Human
@@ -72,7 +73,9 @@ cmake --build build --config Release -j 12
 
 ```
 
+### Options 3. Local inference service by ollama/vLLM and other application such as LMStudio
 
+Please read the official guide for you LLM inferencing tool.
 
 ## Acknowlegement
 
