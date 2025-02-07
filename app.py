@@ -9,6 +9,7 @@ from deep_translator import (
 )
 from deep_translator.openai_compatible import OpenAICompatibleTranslator
 import logging
+import argparse
 
 # Constants
 DEFAULT_PAGES_PER_LOAD = 2
@@ -19,7 +20,7 @@ DEFAULT_API_BASE = "http://localhost:8080/v1"
 TRANSLATORS = {
     'OpenAI Compatible': OpenAICompatibleTranslator,
     'OpenAI': OpenAICompatibleTranslator,
-    'google': GoogleTranslator,
+    'Google': GoogleTranslator,
 }
 
 # Color options
@@ -56,6 +57,65 @@ SOURCE_LANGUAGE_OPTIONS = {
     "Auto": "auto",
 }
 
+# Global translation configuration
+TRANSLATOR_CONFIG = {
+    "type": "Google",  # Options: "Google" or "OpenAI"
+    # OpenAI settings (used only if type is "OpenAI")
+    "openai": {
+        "default_api_base": DEFAULT_API_BASE,
+        "default_model": DEFAULT_MODEL, # "gpt-4o-mini",
+        "default_api_key": "sk-xxx"
+    },
+    # Google settings (used only if type is "Google")
+    "google": {
+        "default_api_base": "https://translate.googleapis.com"
+    }
+}
+
+# Add argument parser
+def parse_args():
+    parser = argparse.ArgumentParser(description='PDF Translator Application')
+    parser.add_argument(
+        '--translator', 
+        type=str, 
+        choices=['google', 'openai'], 
+        default='google',
+        help='Specify translator type: google or openai'
+    )
+    parser.add_argument(
+        '--api-base',
+        type=str,
+        help='API base URL for the translator'
+    )
+    parser.add_argument(
+        '--api-key',
+        type=str,
+        help='API key for OpenAI compatible translator'
+    )
+    parser.add_argument(
+        '--model',
+        type=str,
+        help='Model name for OpenAI compatible translator'
+    )
+    return parser.parse_args()
+
+# Update TRANSLATOR_CONFIG based on command line arguments
+def update_translator_config(args):
+    global TRANSLATOR_CONFIG
+    
+    TRANSLATOR_CONFIG["type"] = "Google" if args.translator.lower() == "google" else "OpenAI"
+    
+    if args.translator.lower() == "google":
+        if args.api_base:
+            TRANSLATOR_CONFIG["google"]["default_api_base"] = args.api_base
+    else:  # OpenAI
+        if args.api_base:
+            TRANSLATOR_CONFIG["openai"]["default_api_base"] = args.api_base
+        if args.api_key:
+            TRANSLATOR_CONFIG["openai"]["default_api_key"] = args.api_key
+        if args.model:
+            TRANSLATOR_CONFIG["openai"]["default_model"] = args.model
+
 def get_cache_dir():
     """Get or create cache directory"""
     cache_dir = Path('.cached')
@@ -88,6 +148,10 @@ def save_translation_cache(doc: pymupdf.Document, cache_key: str):
 
 def translate_pdf_pages(doc, doc_bytes, start_page, num_pages, translator, text_color, translator_name, target_lang):
     """Translate specific pages of a PDF document with progress and caching"""
+    # Log translator information
+    logging.info(f"Using translator: {translator_name}, source: {translator._source}, target: {translator._target}")
+    logging.info(f"Selected translator: {translator_name}, Class: {translator.__class__.__name__}")
+    
     WHITE = pymupdf.pdfcolor["white"]
     rgb_color = COLOR_MAP.get(text_color.lower(), COLOR_MAP["darkred"])
     
@@ -138,6 +202,7 @@ def translate_pdf_pages(doc, doc_bytes, start_page, num_pages, translator, text_
                 bbox = block[:4]
                 text = block[4]
                 translated = translator.translate(text)
+                translated = str(translated)  # Ensure the value is a string
                 
                 # Cover original text with white and add translation in color
                 page.draw_rect(bbox, color=None, fill=WHITE)
@@ -187,6 +252,10 @@ def translate_all_pages(
     **kwargs
 ):
     """Translate all pages of the PDF document"""
+    # Log translator information for full document translation
+    logging.info(f"Starting full document translation with: {kwargs.get('translator_name', 'unknown')}")
+    logging.info(f"Translator settings - source: {translator._source}, target: {translator._target}")
+    
     # Define colors
     WHITE = pymupdf.pdfcolor["white"]
     rgb_color = COLOR_MAP.get(kwargs.get('text_color', 'darkred').lower(), COLOR_MAP["darkred"])
@@ -240,8 +309,8 @@ def init_session_state():
         st.session_state.api_settings = {}
 
 def main():
-    st.set_page_config(layout="wide", page_title="PDF Translator for Human: with Local-LLM/GPT")
-    st.title("PDF Translator for Human: with Local-LLM/GPT")
+    st.set_page_config(layout="wide", page_title="PDF Translator for Human")
+    st.title("PDF Translator for Human")
 
     # Initialize session state
     init_session_state()
@@ -270,12 +339,6 @@ def main():
         )
         source_lang = SOURCE_LANGUAGE_OPTIONS[source_lang_name]
         
-        translator_name = st.selectbox(
-            "Select Translator",
-            options=list(TRANSLATORS.keys()),
-            index=0
-        )
-        
         pages_per_load = st.number_input(
             "Pages per load",
             min_value=1,
@@ -289,54 +352,44 @@ def main():
             index=0
         )
         
-        # OpenAI specific settings
-        if translator_name in ['OpenAI', 'OpenAI Compatible']:
-            st.subheader(f"{translator_name} Settings")
-            target_lang = st.selectbox(
-                "Target Language",
-                options=list(LANGUAGE_OPTIONS.keys()),
-                index=0
+        target_lang = st.selectbox(
+            "Target Language",
+            options=list(LANGUAGE_OPTIONS.keys()),
+            index=0
+        )
+        target_lang_code = LANGUAGE_OPTIONS[target_lang]
+        
+        # API Configuration based on translator type
+        st.subheader("API Settings")
+        if TRANSLATOR_CONFIG["type"] == "OpenAI":
+            api_key = st.text_input(
+                "API Key",
+                value=TRANSLATOR_CONFIG["openai"]["default_api_key"],
+                type="password"
             )
-            
-            # Get API key from environment or user input
-            api_key = os.getenv("OPENAI_API_KEY", "")
-            if not api_key:
-                api_key = st.text_input(
-                    "API Key",
-                    value="sk-xxx",
-                    type="password"
-                )
-            
-            # Different default API base for OpenAI and OpenAI Compatible
-            default_base = "https://api.openai.com/v1" if translator_name == 'OpenAI' else DEFAULT_API_BASE
             api_base = st.text_input(
                 "API Base URL",
-                value=os.getenv("OPENAI_API_BASE", default_base)
+                value=TRANSLATOR_CONFIG["openai"]["default_api_base"]
             )
-            
-            # Different default model for OpenAI and OpenAI Compatible
-            default_model = "gpt-4o-mini" if translator_name == 'OpenAI' else DEFAULT_MODEL
             model = st.text_input(
                 "Model Name",
-                value=os.getenv("OPENAI_MODEL", default_model)
+                value=TRANSLATOR_CONFIG["openai"]["default_model"]
             )
             
-            # Store API settings in session state
+            # Store API settings
             st.session_state.api_settings.update({
                 'api_key': api_key,
                 'api_base': api_base,
                 'model': model
             })
-            
-            target_lang = LANGUAGE_OPTIONS[target_lang]
-        else:
-            # For Google Translator, show target language selection
-            target_lang_name = st.selectbox(
-                "Target Language",
-                options=list(SOURCE_LANGUAGE_OPTIONS.keys())[:-1],  # Remove "Auto" option
-                index=0  # Default to first language
+        else:  # Google Translator
+            api_base = st.text_input(
+                "API Base URL",
+                value=TRANSLATOR_CONFIG["google"]["default_api_base"]
             )
-            target_lang = SOURCE_LANGUAGE_OPTIONS[target_lang_name]
+            st.session_state.api_settings.update({
+                'api_base': api_base
+            })
 
     # Main content area
     if uploaded_file is not None:
@@ -346,7 +399,7 @@ def main():
         # Create two columns for side-by-side display
         col1, col2 = st.columns(2)
         
-        # Display original pages immediately
+        # Display original pages
         with col1:
             st.header("Original")
             for page_num in range(st.session_state.current_page,
@@ -359,35 +412,46 @@ def main():
         with col2:
             st.header("Translated")
             
-            # Configure translator with selected source language and API settings
-            TranslatorClass = TRANSLATORS[translator_name]
-            translator = TranslatorClass(
-                source=source_lang,
-                target=target_lang,
-                api_key=st.session_state.api_settings.get('api_key'),
-                base_url=st.session_state.api_settings.get('api_base'),
-                model=st.session_state.api_settings.get('model')
-            )
+            try:
+                # Initialize translator based on global config
+                if TRANSLATOR_CONFIG["type"] == "Google":
+                    translator = GoogleTranslator(
+                        source=source_lang,
+                        target=target_lang_code
+                    )
+                else:
+                    translator = OpenAICompatibleTranslator(
+                        source=source_lang,
+                        target=target_lang_code,
+                        api_key=st.session_state.api_settings.get('api_key'),
+                        base_url=st.session_state.api_settings.get('api_base'),
+                        model=st.session_state.api_settings.get('model')
+                    )
+
+                # Translate current batch of pages
+                translated_pages = translate_pdf_pages(
+                    doc,
+                    doc_bytes,
+                    st.session_state.current_page,
+                    pages_per_load,
+                    translator,
+                    text_color,
+                    TRANSLATOR_CONFIG["type"],
+                    target_lang_code
+                )
+                
+                # Display translated pages
+                for i, trans_doc in enumerate(translated_pages):
+                    page = trans_doc[0]
+                    pix = get_page_image(page)
+                    st.image(pix.tobytes(), caption=f"Page {st.session_state.current_page + i + 1}", use_container_width=True)
             
-            # Translate current batch of pages
-            translated_pages = translate_pdf_pages(
-                doc,
-                doc_bytes,
-                st.session_state.current_page,
-                pages_per_load,
-                translator,
-                text_color,
-                translator_name,
-                target_lang
-            )
-            
-            # Display translated pages
-            for i, trans_doc in enumerate(translated_pages):
-                page = trans_doc[0]
-                pix = get_page_image(page)
-                st.image(pix.tobytes(), caption=f"Page {st.session_state.current_page + i + 1}", use_container_width=True)
-        
-        # Navigation and action buttons in one row
+            except Exception as e:
+                st.error(f"Translation error: {str(e)}")
+                logging.error(f"Translation error: {str(e)}")
+                return
+
+        # Navigation and action buttons
         st.markdown("---")  # Add a separator
         button_col1, button_col2, button_col3, button_col4 = st.columns(4)
         
@@ -417,34 +481,44 @@ def main():
             if st.button("Translate All", 
                         disabled=st.session_state.all_translated,
                         use_container_width=True):
-                # Configure translator
-                TranslatorClass = TRANSLATORS[translator_name]
-                translator = TranslatorClass(
-                    source=source_lang,
-                    target=target_lang,
-                    api_key=st.session_state.api_settings.get('api_key'),
-                    base_url=st.session_state.api_settings.get('api_base'),
-                    model=st.session_state.api_settings.get('model')
-                )
-                
-                # Translate all pages
-                output_doc = pymupdf.open()
-                output_path = f"translated_{uploaded_file.name}"
-                output_doc = translate_all_pages(
-                    doc,
-                    output_doc,
-                    translator,
-                    st.empty(),
-                    pages_per_load,
-                    text_color=text_color,
-                    translator_name=translator_name,
-                    target_lang=target_lang,
-                    output_path=output_path  # 提供输出路径
-                )
-                
-                st.session_state.all_translated = True
-                st.session_state.translated_doc = output_path
-                st.rerun()
+                try:
+                    # Initialize translator based on global config
+                    if TRANSLATOR_CONFIG["type"] == "Google":
+                        translator = GoogleTranslator(
+                            source=source_lang,
+                            target=target_lang_code
+                        )
+                    else:
+                        translator = OpenAICompatibleTranslator(
+                            source=source_lang,
+                            target=target_lang_code,
+                            api_key=st.session_state.api_settings.get('api_key'),
+                            base_url=st.session_state.api_settings.get('api_base'),
+                            model=st.session_state.api_settings.get('model')
+                        )
+
+                    # Translate all pages
+                    output_doc = pymupdf.open()
+                    output_path = f"translated_{uploaded_file.name}"
+                    output_doc = translate_all_pages(
+                        doc,
+                        output_doc,
+                        translator,
+                        st.empty(),
+                        pages_per_load,
+                        text_color=text_color,
+                        translator_name=TRANSLATOR_CONFIG["type"],
+                        target_lang=target_lang_code,
+                        output_path=output_path
+                    )
+                    
+                    st.session_state.all_translated = True
+                    st.session_state.translated_doc = output_path
+                    st.rerun()
+                except Exception as e:
+                    st.error(f"Translation error: {str(e)}")
+                    logging.error(f"Translation error: {str(e)}")
+                    return
         
         # Download button
         with button_col4:
@@ -469,5 +543,22 @@ def main():
     else:
         st.info("Please upload a PDF file to begin translation")
 
+
+    # 使用Google翻译（默认）：
+    # streamlit run app.py
+
+    # 使用Google翻译并指定API base：
+    # streamlit run app.py --translator google --api-base https://translate.googleapis.com
+
+    # 使用OpenAI兼容模型：
+    # python app.py --translator openai --model default_model --api-key sk-xxx --api-base http://localhost:8080/v1
+
+    # 使用OpenAI翻译并指定API base：
+    # python app.py --translator openai --api-base https://api.openai.com/v1 --model gpt-4o-mini --api-key sk-xxx
+
+
 if __name__ == "__main__":
+
+    args = parse_args()
+    update_translator_config(args)
     main() 
