@@ -359,9 +359,16 @@ def main():
         )
         target_lang_code = LANGUAGE_OPTIONS[target_lang]
         
-        # API Configuration based on translator type
-        st.subheader("API Settings")
-        if TRANSLATOR_CONFIG["type"] == "OpenAI":
+        # Add translator selection
+        st.subheader("Translator Settings")
+        translator_type = st.radio(
+            "Translator",
+            options=["Google", "OpenAI Compatible"],
+            index=0 if TRANSLATOR_CONFIG["type"] == "Google" else 1
+        )
+        
+        # API Configuration based on translator selection
+        if translator_type == "OpenAI Compatible":
             api_key = st.text_input(
                 "API Key",
                 value=TRANSLATOR_CONFIG["openai"]["default_api_key"],
@@ -383,12 +390,9 @@ def main():
                 'model': model
             })
         else:  # Google Translator
-            api_base = st.text_input(
-                "API Base URL",
-                value=TRANSLATOR_CONFIG["google"]["default_api_base"]
-            )
+            # No configuration needed for Google Translator
             st.session_state.api_settings.update({
-                'api_base': api_base
+                'api_base': TRANSLATOR_CONFIG["google"]["default_api_base"]
             })
 
     # Main content area
@@ -413,8 +417,8 @@ def main():
             st.header("Translated")
             
             try:
-                # Initialize translator based on global config
-                if TRANSLATOR_CONFIG["type"] == "Google":
+                # Initialize translator based on user selection
+                if translator_type == "Google":
                     translator = GoogleTranslator(
                         source=source_lang,
                         target=target_lang_code
@@ -436,7 +440,7 @@ def main():
                     pages_per_load,
                     translator,
                     text_color,
-                    TRANSLATOR_CONFIG["type"],
+                    translator_type,
                     target_lang_code
                 )
                 
@@ -482,8 +486,8 @@ def main():
                         disabled=st.session_state.all_translated,
                         use_container_width=True):
                 try:
-                    # Initialize translator based on global config
-                    if TRANSLATOR_CONFIG["type"] == "Google":
+                    # Initialize translator based on user selection
+                    if translator_type == "Google":
                         translator = GoogleTranslator(
                             source=source_lang,
                             target=target_lang_code
@@ -507,7 +511,7 @@ def main():
                         st.empty(),
                         pages_per_load,
                         text_color=text_color,
-                        translator_name=TRANSLATOR_CONFIG["type"],
+                        translator_name=translator_type,
                         target_lang=target_lang_code,
                         output_path=output_path
                     )
@@ -558,7 +562,6 @@ def main():
 
 
 if __name__ == "__main__":
-
     args = parse_args()
     update_translator_config(args)
     main() 
