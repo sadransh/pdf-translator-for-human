@@ -29,6 +29,10 @@ The local/remote translation API is invoked on a per-page basis as needed, trigg
 
 ![PDF Translator for Human](PDF-Translator-for-Human.jpg)
 
+## Huggingface Space
+
+https://huggingface.co/spaces/davideuler/pdf-translator-for-human
+
 ## Supported translators and LLMs:
 * Google Translator (NO need api-key, it it totally free)
 * Local deployed LLMs (ollama, llama.cpp, mlx_lm ... etc.)
