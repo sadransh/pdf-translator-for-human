@@ -6,4 +6,4 @@ pip install -e .
 pip install streamlit pymupdf openai 
 
 # Start the Web Application
-streamlit run pdf_translator_web.py
+streamlit run app.py

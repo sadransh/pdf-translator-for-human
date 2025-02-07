@@ -32,7 +32,7 @@ The local/remote translation API is invoked on a per-page basis as needed, trigg
 ./run_translator_web.sh
 
 # or just start the streamlit application if you have run the previous script:
-streamlit run pdf_translator_web.py
+streamlit run app.py
 
 ```
 
