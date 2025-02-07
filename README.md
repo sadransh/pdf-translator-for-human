@@ -1,3 +1,16 @@
+---
+title: Pdf Translator For Human
+emoji: 🦀
+colorFrom: indigo
+colorTo: green
+sdk: streamlit
+sdk_version: 1.42.0
+app_file: app.py
+pinned: false
+license: apache-2.0
+short_description: PDF Translator powered by local llm, side by side reading
+---
+
 # PDF Translator for Human: A PDF Reader/Translator with Local LLM/ChatGPT or Google
 
 ## Use Case
