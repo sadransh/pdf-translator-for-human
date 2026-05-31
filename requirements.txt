@@ -1,6 +1,22 @@
-git+https://github.com/davideuler/pdf-translator-for-human.git
-openai==1.61.0
-PyMuPDF==1.25.2
-streamlit==1.41.1
+# Core dependencies
+PyMuPDF==1.27.1
+streamlit==1.54.0
+openai==2.21.0
+python-dotenv==1.2.1
+
+# PDF parsing (optional — choose based on PDF_PARSER_MODE)
+# legacy mode: no extra deps needed (uses PyMuPDF only)
+# docling mode:
 docling>=2.0.0
-docling-parse
+docling-parse>=5.3.0
+# legacyocr mode:
+pytesseract>=0.3.10
+# easyocr mode:
+easyocr>=1.7.0
+
+# RTL text handling
+python-bidi>=0.6.0
+
+# Web scraping (used by some translators)
+beautifulsoup4>=4.12.0
+requests>=2.31.0
