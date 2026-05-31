@@ -108,3 +108,16 @@ ENV/
 
 # IDE settings
 .vscode/
+
+# AI coding
+.ruff_cache/
+
+# Translation cache
+.cached/
+
+# OS files
+.DS_Store
+
+# Test/output artifacts
+mtest-fa.md
+pages.txt

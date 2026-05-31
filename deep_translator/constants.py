@@ -125,6 +125,7 @@ GOOGLE_LANGUAGES_TO_CODES = {
     "oromo": "om",
     "pashto": "ps",
     "persian": "fa",
+    "farsi": "fa",
     "polish": "pl",
     "portuguese": "pt",
     "punjabi": "pa",
@@ -288,6 +289,7 @@ MY_MEMORY_LANGUAGES_TO_CODES = {
     "czech": "cs-CZ",
     "danish": "da-DK",
     "dari": "prs-AF",
+    "persian": "fa-IR",
     "dimli": "diq-TR",
     "dutch": "nl-NL",
     "dyula": "dyu-CI",
@@ -599,6 +601,7 @@ QCRI_LANGUAGE_TO_CODE = {"Arabic": "ar", "English": "en", "Spanish": "es"}
 LIBRE_LANGUAGES_TO_CODES = {
     "English": "en",
     "Arabic": "ar",
+    "Persian": "fa",
     "Chinese": "zh",
     "French": "fr",
     "German": "de",

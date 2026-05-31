@@ -117,6 +117,38 @@ class BaseTranslator(ABC):
         else:
             return False
 
+    # languages that should be displayed right-to-left
+    RTL_LANGUAGE_PREFIXES = ("ar", "he", "fa", "ur")
+
+    def _is_rtl_language(self) -> bool:
+        """Return True if the current target language is a known RTL language."""
+        tgt = (self._target or "").lower()
+        return any(
+            tgt.startswith(prefix) for prefix in self.RTL_LANGUAGE_PREFIXES
+        )
+
+    def _apply_rtl_marks(self, text: str) -> str:
+        """Wrap each non-empty paragraph with RLE/PDF markers so rendering is RTL.
+
+        Uses U+202B (RLE) to start RTL embedding and U+202C (PDF) to end it.
+        """
+        if not text:
+            return text
+        paragraphs = text.splitlines()
+        wrapped = []
+        for p in paragraphs:
+            if p.strip():
+                wrapped.append("\u202b" + p + "\u202c")
+            else:
+                wrapped.append(p)
+        return "\n".join(wrapped)
+
+    def _postprocess_direction(self, text: str) -> str:
+        """Post-process translated text according to target language direction."""
+        if self._is_rtl_language():
+            return self._apply_rtl_marks(text)
+        return text
+
     @abstractmethod
     def translate(self, text: str, **kwargs) -> str:
         """
@@ -166,7 +198,9 @@ class BaseTranslator(ABC):
             with open(path, "r", encoding="utf-8") as f:
                 text = f.read().strip()
 
-        return self.translate(text)
+        # perform translation then apply any directionality postprocessing
+        translated = self.translate(text)
+        return self._postprocess_direction(translated)
 
     def _translate_batch(self, batch: List[str], **kwargs) -> List[str]:
         """
@@ -179,5 +213,5 @@ class BaseTranslator(ABC):
         arr = []
         for i, text in enumerate(batch):
             translated = self.translate(text, **kwargs)
-            arr.append(translated)
+            arr.append(self._postprocess_direction(translated))
         return arr
