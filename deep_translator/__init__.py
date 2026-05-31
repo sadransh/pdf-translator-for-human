@@ -13,6 +13,7 @@ from deep_translator.microsoft import MicrosoftTranslator
 from deep_translator.mymemory import MyMemoryTranslator
 from deep_translator.papago import PapagoTranslator
 from deep_translator.pons import PonsTranslator
+from deep_translator.postprocess import postprocess_translation
 from deep_translator.qcri import QcriTranslator
 from deep_translator.tencent import TencentTranslator
 from deep_translator.yandex import YandexTranslator
@@ -37,4 +38,5 @@ __all__ = [
     "BaiduTranslator",
     "single_detection",
     "batch_detection",
+    "postprocess_translation",
 ]

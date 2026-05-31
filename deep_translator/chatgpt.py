@@ -1,15 +1,24 @@
 __copyright__ = "Copyright (C) 2020 Nidhal Baccouri"
 
+import logging
 import os
 from typing import List, Optional
 
 from deep_translator.base import BaseTranslator
 from deep_translator.constants import (
-    OPEN_AI_ENV_VAR,
+    GOOGLE_LANGUAGES_TO_CODES,
     OPEN_AI_BASE_URL_ENV_VAR,
+    OPEN_AI_ENV_VAR,
     OPEN_AI_MODEL_ENV_VAR,
 )
 from deep_translator.exceptions import ApiKeyException
+from deep_translator.prompts import build_prompt
+
+logging.basicConfig(
+    filename="application.log",
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)-5s %(lineno)d %(filename)s:%(funcName)s - %(message)s",
+)
 
 
 class ChatGptTranslator(BaseTranslator):
@@ -52,14 +61,26 @@ class ChatGptTranslator(BaseTranslator):
 
         client = openai.OpenAI(
             api_key=self.api_key,
-            base_url=self.base_url if self.base_url else None
+            base_url=self.base_url if self.base_url else None,
         )
 
-        prompt = f"Translate the text below into {self.target}.\n"
-        prompt += f'Text: "{text}"'
+        source_lang = self._get_language_name(self._source)
+        target_lang = self._get_language_name(self._target)
+        source_code = self._source if self._source != "auto" else "auto"
+        target_code = self._target
 
-        # if model is empty (for mlx_lm.server, the model should be default_model)
-        # export OPENAI_MODEL=default_model
+        prompt = build_prompt(
+            model_name=self.model or "default",
+            text=text,
+            source_lang=source_lang,
+            source_code=source_code,
+            target_lang=target_lang,
+            target_code=target_code,
+        )
+
+        logging.info(f"Using model: {self.model}")
+        logging.info(f"Prompt: {prompt}")
+
         response = client.chat.completions.create(
             model=self.model if self.model else "default_model",
             messages=[
@@ -69,9 +90,15 @@ class ChatGptTranslator(BaseTranslator):
                 }
             ],
         )
-        
+        resp = response.choices[0].message.content or ""
+        logging.info(f"model response:{resp}")
+        return resp
 
-        return response.choices[0].message.content
+    def _get_language_name(self, code: str) -> str:
+        for name, c in GOOGLE_LANGUAGES_TO_CODES.items():
+            if c == code:
+                return name.title()
+        return code
 
     def translate_file(self, path: str, **kwargs) -> str:
         return self._translate_file(path, **kwargs)

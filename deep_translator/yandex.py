@@ -115,9 +115,11 @@ class YandexTranslator(BaseTranslator):
             params = {
                 "text": text,
                 "format": "plain",
-                "lang": self._target
-                if self._source == "auto"
-                else "{}-{}".format(self._source, self._target),
+                "lang": (
+                    self._target
+                    if self._source == "auto"
+                    else "{}-{}".format(self._source, self._target)
+                ),
                 "key": self.api_key,
             }
             try:
