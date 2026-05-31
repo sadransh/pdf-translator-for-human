@@ -1,6 +1,4 @@
 # install the project and dependencies
-
-git clone https://github.com/davideuler/pdf-translator-for-human
 cd pdf-translator-for-human
 pip install -e .
 pip install streamlit pymupdf openai 

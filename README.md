@@ -35,7 +35,11 @@ This fork extends the upstream project with the following additions:
 
 ## Snapshot
 
-![PDF Translator for Human](PDF-Translator-for-Human.jpg)
+![PDF Translator for Human](saved-demo.jpg)
+
+
+---
+rest is  from original read me ... not updated with changes from this repo
 
 ## Huggingface Space
 
@@ -74,7 +78,7 @@ pip install -r requirements.txt
 poetry install
 ```
 
-### Run the Web Application
+### Run the Web Application -- not fully optimized
 
 ```bash
 ./run_translator_web.sh
