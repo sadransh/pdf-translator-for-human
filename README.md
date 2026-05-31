@@ -13,21 +13,28 @@ short_description: PDF Translator powered by local llm, side by side reading
 
 # PDF Translator for Human
 
-A PDF reader/translator with local LLM, ChatGPT, or Google Translate support — read original and translated pages side by side, with full RTL (Right-to-Left) language support for Persian, Arabic, Hebrew, and Urdu.
+**Fork of [davideuler/pdf-translator-for-human](https://github.com/davideuler/pdf-translator-for-human)** — a side-by-side PDF reader/translator powered by local LLMs, ChatGPT, or Google Translate. This fork adds full RTL language support, multi-strategy PDF parsing, pluggable translation prompts, post-processing pipelines, and more.
 
-> This is a feature-enhanced fork of [davideuler/pdf-translator-for-human](https://github.com/davideuler/pdf-translator-for-human) with major additions for RTL language support, multi-strategy PDF parsing, pluggable translation prompts, post-processing pipelines, and more.
+## New Features & Changes
 
-## What's New
+This fork extends the upstream project with the following additions:
 
-This fork adds significant capabilities beyond the upstream project:
-
-| Feature | Description |
-|---|---|
-| **RTL Language Support** | Full right-to-left rendering for Persian, Arabic, Hebrew, and Urdu using Unicode RLE/PDF markers and HTML `dir='rtl'` formatting |
-| **Post-Processing Pipeline** | Automatic digit conversion (0-9 → Persian/Arabic numerals) and punctuation conversion (`,` → `،`, `?` → `؟`) |
-| **Multi-Strategy PDF Parsing** | 5 extraction modes: legacy, docling, hybrid, legacy+Tesseract OCR, legacy+easyOCR |
-| **Pluggable Prompt System** | Model-specific prompt templates with auto-detection — add your own in `deep_translator/prompts/` |
-| **Model Configuration Registry** | Centralized model list with display names, env-var customization, and UI-friendly dropdown selector |
+- **RTL Language Support** — Full right-to-left rendering for Persian, Arabic, Hebrew, and Urdu using Unicode RLE/PDF markers and HTML `dir='rtl'` formatting
+- **Persian/Farsi as a first-class target language** — Added throughout the app, language mappings, and UI
+- **Post-Processing Pipeline** — Automatic digit conversion (0-9 → Persian/Arabic numerals) and punctuation conversion (`,` → `،`, `?` → `؟`)
+- **Multi-Strategy PDF Parsing** — 5 extraction modes (legacy, docling, hybrid, legacy+Tesseract OCR, legacy+easyOCR) with automatic garbled text detection
+- **Pluggable Prompt System** — Model-specific prompt templates with auto-detection; add your own in `deep_translator/prompts/`
+- **Model Configuration Registry** — Centralized model list with display names, env-var customization, and UI dropdown selector
+- **Bbox Collision Detection** — Prevents translated text blocks from overlapping, with adjustable expansion and spacing
+- **Hyphen Carryover** — Handles words hyphenated across page boundaries by carrying them to the next block
+- **Footnote Handling** — Detects footnote separators, adjusts font size for footnote text, and redraws separator lines
+- **Translation Caching** — Page-level MD5-based cache in `.cached/` to skip re-translation of already-translated pages
+- **Markdown Export** — Optional `.md` sidecar file with all translated text organized by page
+- **OCG Layer Support** — Original text preserved as a toggleable PDF layer (show/hide in PDF viewers)
+- **AI Attribution Footers** — Each page gets an "AI translation powered by [model]" footer
+- **PDF Splitting Utility** — `split_pdf.py` CLI tool for splitting PDFs into chapters by page ranges
+- **CLI Batch Processing** — Process entire directories of PDFs with progress reporting
+- **Refactored core** — PDF translation logic extracted from `app.py` into `deep_translator/pdf_translator.py` for reuse in both web UI and CLI
 | **Bbox Collision Detection** | Prevents translated text blocks from overlapping with adjustable expansion and spacing |
 | **Hyphen Carryover** | Handles words hyphenated across page boundaries, carrying them to the next block |
 | **Footnote Handling** | Detects footnote separators, adjusts font size for footnote text, and redraws separator lines |
