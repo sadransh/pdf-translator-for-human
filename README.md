@@ -35,7 +35,7 @@ This fork extends the upstream project with the following additions:
 
 ## Snapshot
 
-![PDF Translator for Human](saved-demo.jpg)
+![PDF Translator for Human](saved-demo.png)
 
 
 ---
