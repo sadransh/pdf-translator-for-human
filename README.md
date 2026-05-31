@@ -1,16 +1,3 @@
----
-title: Pdf Translator For Human
-emoji: 🦀
-colorFrom: indigo
-colorTo: green
-sdk: streamlit
-sdk_version: 1.42.0
-app_file: app.py
-pinned: false
-license: apache-2.0
-short_description: PDF Translator powered by local llm, side by side reading
----
-
 # PDF Translator for Human
 
 **Fork of [davideuler/pdf-translator-for-human](https://github.com/davideuler/pdf-translator-for-human)** — a side-by-side PDF reader/translator powered by local LLMs, ChatGPT, or Google Translate. This fork adds full RTL language support, multi-strategy PDF parsing, pluggable translation prompts, post-processing pipelines, and more.
@@ -69,12 +56,12 @@ The application ships with a curated list of models. Set `AVAILABLE_MODELS` env 
 
 | Model | Display Name |
 |---|---|
-| `gpt-4o-mini` | GPT-4o Mini (OpenAI) |
-| `gpt-4o` | GPT-4o (OpenAI) |
-| `gpt-4-turbo` | GPT-4 Turbo (OpenAI) |
-| `translategemma:12b` | TranslateGemma 12B (Local) |
-| `llama3.1:8b` | Llama 3.1 8B (Local) |
-| `qwen2.5:7b` | Qwen 2.5 7B (Local) |
+| `gpt-4o-mini` | GPT-4o Mini (OpenAI - requires testing) |
+| `gpt-4o` | GPT-4o (OpenAI - requires testing) |
+| `gpt-4-turbo` | GPT-4 Turbo (OpenAI - requires testing) |
+| `translategemma:12b` | TranslateGemma 12B (ollama local) |
+| `llama3.1:8b` | Llama 3.1 8B (ollama local) |
+| `qwen2.5:7b` | Qwen 2.5 7B (ollama local) |
 | ... and more | |
 
 ## Quick Start
@@ -95,7 +82,12 @@ poetry install
 streamlit run app.py
 ```
 
-### Run the CLI
+### Run the CLI (recommended and tested at large scale)
+
+#example to process a whole list of pdfs to persian with translategemma in both .md and .pdf format
+```bash
+python translator_cli.py  ../raw\ pdfs --source en --target fa --translator chatgpt --model translategemma:27b --no-original --md
+```
 
 ```bash
 # Translate a single PDF (Google Translate):
